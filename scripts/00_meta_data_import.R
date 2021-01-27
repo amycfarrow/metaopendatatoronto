@@ -13,12 +13,15 @@ library(opendatatoronto)
 library(tidyverse)
 
 ### Get data ###
-metaopendata <-
+raw_data <-
   opendatatoronto::search_packages("Catalogue quality scores") %>%
   opendatatoronto::list_package_resources() %>%
-  dplyr::filter(name %in% c("catalogue-scorecard")) %>% # This is the row we are interested in.
+  dplyr::filter(name %in% c("catalogue-scorecard")) %>% # This is the name of the resource we are interested in.
   dplyr::select(id) %>%
   opendatatoronto::get_resource()
 
-### Save data ###
-write_csv(metaopendata, "inputs/data/raw_data.csv")
+### Save raw data ###
+write_csv(raw_data, "inputs/data/raw_data.csv")
+
+### Remove raw data from the environment ###
+#rm(raw_data)
