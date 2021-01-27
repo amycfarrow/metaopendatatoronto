@@ -27,7 +27,7 @@ library(kableExtra) # for nicer tables
 
 # Introduction
 
-The Toronto Open Data Portal was launched in 2009, following the increasing public interest in accessible and free data [@aboutportal]. The push for open data is a global trend, often linked to the ideas of open government, democratic participation, and civic empowerment [@Sayago]. Ten years after the portal’s launch, technical abilities and expectations for open data had risen significantly [@aboutportal], leading the Open Data Toronto team to consider how the success of the portal could best be measured [@HernandezMedium1]. Beginning in December 2019, A Data Quality Score system was developed. In keeping with the spirit of open data, complete scoring results are available on the portal.
+The Toronto Open Data Portal was launched in 2009, following the increasing public interest in accessible and free data [@aboutportal]. The push for open data is a global trend, often linked to the ideas of open government, democratic participation, and civic empowerment [@Sayogo]. Ten years after the portal’s launch, technical abilities and expectations for open data had risen significantly [@aboutportal], leading the Open Data Toronto team to consider how the success of the portal could best be measured [@HernandezMedium1]. Beginning in December 2019, A Data Quality Score system was developed. In keeping with the spirit of open data, complete scoring results are available on the portal.
 
 More than a year since the Data Quality Score was first used, we can begin to see patterns: scoring is irregular and quality is poor overall, but there is some improvement over time. This report will first consider the scoring data relative to time to consider how different scoring dimensions perform relative to one another. Second, it will demonstrate that scoring has taken place over uneven intervals of time. Third, it will demonstrate that increases in average Quality scores are associated with increased in number of datasets. Fourth, it will compare the grade levels given in January 2021 to those given six months prior and find that the proportion of higher-grade packages is increasing. Finally, it will discuss the limits of the Data Quality Score, in terms of bias and in terms of measuring the overall value of the portal. 
 
@@ -163,6 +163,15 @@ cleaned_data %>%
   ) %>%
   
   # Style the table:
+  column_spec(1, width = "5em") %>%
+  column_spec(2, width = "5em") %>%
+  column_spec(3, width = "5em") %>%
+  column_spec(4, width = "5em") %>%
+  column_spec(5, width = "6em") %>%
+  column_spec(6, width = "7em") %>%
+  column_spec(7, width = "5em") %>%
+  column_spec(8, width = "5em") %>%
+  column_spec(9, width = "5em") %>%
   kableExtra::kable_styling(latex_options = "scale_down")
 ```
 
@@ -187,7 +196,7 @@ cleaned_data %>%
   
   # Manipulate colors, labels, and scales for easier presentation:
   scale_color_gradientn(colors = c('darkturquoise', 'royalblue2', 'magenta3')) +
-  labs(color = "Average Quality score \n across all packages",
+  labs(color = "Average \nQuality \nscore \nacross all \npackages",
     x = "Date recorded",
     y = "Number of packages scored",
     title = "Scoring Frequency Increased Over the Beta Testing Period")+ 
