@@ -94,7 +94,6 @@ This data is available in the resource "catalogue-scorecard" in the package "Cat
 Figure \@ref(fig:facetedscorestime) shows all five metrics and the final Quality score over time. Each point represents a scored package, and the line is fitted to the overall trend. In the case of the Accessibility score, no line has been fitted: this is because all packages at all dates received a score of 1. This is logical, because Accessibility is based on availability through the Datastore API, and packages are only scored if they are available through the Datastore API. We can see that some dimensions perform better than others: Completeness and Usability are relatively high and stable, while Freshness is lower and Metadata is lower still. There is some fluctuation in these last two dimensions. The overall performance is poor: Quality scores trend around the 0.5 mark for the entire time that packages have been scored.
 
 ```{r facetedscorestime, fig.cap = "Scores over time", fig.width = 10, fig.height = 5, echo = FALSE, message = FALSE, warning = FALSE}
-
 cleaned_data %>%
   # Create a pivot table so the different types of scores can easily be faceted:
   tidyr::pivot_longer(
@@ -125,6 +124,7 @@ cleaned_data %>%
   
   # Facet the plot so we can compare across different types of score:
   facet_wrap(~ metric, ncol = 3, labeller = labeller(metric = StrCap))
+
 ```
 
 Figure \@ref(fig:facetedscorestime) also shows an interesting pattern with regards to the date the package was scored: there are erratic scores beginning in December 2019, but the frequency of scoring becomes regular in July 2020 and the frequency increased in November 2020.
@@ -143,32 +143,33 @@ cleaned_data %>%
   # Summarise counts and means for each month:
   summarise(scored = n_distinct(package),
             scores = n_distinct(recorded_at),
-            mean_quality = mean(quality),
             mean_accessibility = mean(accessibility),
             mean_completeness = mean(completeness),
             mean_freshness = mean(freshness),
             mean_metadata = mean(metadata),
             mean_usability = mean(usability),
+            mean_quality = mean(quality)
   ) %>%
   
   # Put the results in a table:
   knitr::kable(digits = 3,
-               col.names = c("Year and Month", "Number of Unique Packages Scored",
-                "Number of Times the Portal was Scored", "Average Quality", "Average Accessibility",
-                "Average Completeness", "Average Freshness", "Average Metadata",
-                "Average Usability"),
+               col.names = c("Year and Month", "Unique Packages Scored",
+                "Times the Portal was Scored", "Accessibility",
+                "Completeness", "Freshness", "Metadata",
+                "Usability", "Quality"),
                booktabs = TRUE,
                escape = FALSE,
                caption = "Scoring by month"
   ) %>%
   
   # Style the table:
+  add_header_above(c("", "Counts" = 2, "Average Scores" = 6)) %>%
   column_spec(1, width = "5em") %>%
   column_spec(2, width = "5em") %>%
   column_spec(3, width = "5em") %>%
   column_spec(4, width = "5em") %>%
-  column_spec(5, width = "6em") %>%
-  column_spec(6, width = "7em") %>%
+  column_spec(5, width = "5em") %>%
+  column_spec(6, width = "5em") %>%
   column_spec(7, width = "5em") %>%
   column_spec(8, width = "5em") %>%
   column_spec(9, width = "5em") %>%
@@ -204,7 +205,7 @@ cleaned_data %>%
                     minor_breaks = date_breaks("1 month"),
                     labels = date_format("%b%d'%y",tz="EST"), # Format the x-axis scale to show Mar13'21, for example
                     expand = c(0,0), # spaces out scale labels for legibility
-                    limits = as.POSIXct(strptime(c("2019-12-02 00:00", "2021-01-25 00:00"), # set x-axis limits
+                    limits = as.POSIXct(strptime(c("2019-12-16 00:00", "2021-01-25 00:00"), # set x-axis limits
                     format = "%Y-%m-%d %H:%M"))) +
   theme_light()
 ```
