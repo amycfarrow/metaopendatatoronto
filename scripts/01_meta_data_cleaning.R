@@ -14,7 +14,7 @@
 #### Workspace setup ####
 library(haven)
 library(tidyverse)
-library(lubridate) # for handing the recorded_at variable
+library(lubridate)  # for handing the recorded_at variable
 
 ### Read in the raw data ###
 raw_data <- readr::read_csv("inputs/data/raw_data.csv")
@@ -28,7 +28,7 @@ reduced_data <-
          freshness,
          metadata,
          usability,
-         score_norm,
+         score,
          grade_norm,
          recorded_at)
 rm(raw_data)
@@ -41,13 +41,15 @@ reduced_data <-
   filter(recorded_at < "2021-01-24 00:10:00")
 
 ### Clean data ###
-# This properly formats the collection time and date
-# and relevels the grades so that the order is lowest to highest.
+# This properly formats the collection time and date,
+# relevels the grades so that the order is lowest to highest,
+# renames the normalized grade to 'grade', as the nonnormalized grade is discarded,
+# and renames the normalized quality score variable as 'quality'
 cleaned_data <-
   reduced_data %>%
   mutate(recorded_at = as_datetime(recorded_at),
          grade_norm = fct_relevel(grade_norm, "Bronze", "Silver","Gold")) %>%
-  rename(quality = score_norm, grade = grade_norm)
+  rename(quality = score, grade = grade_norm, date_scored = recorded_at)
 rm(reduced_data)
 
 ### Save cleaned data ###

@@ -1,13 +1,13 @@
 ---
-title: "Open Data Quality is Poor but Slowly Improving"
+title: "Open Data Quality Is Poor but Slowly Improving"
 author: "Amy Farrow"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 output:
   bookdown::pdf_document2:
     toc: no
 subtitle: "Catalogue Quality Scores for Open Data Toronto, December 2019 to January 2021"
-abstract: "This report uses the data collected by Open Data Toronto for its Data Quality Score. Significant limitations in the scoring system, which is still in beta testing, are discussed. The data show that quality is poor overall, with some proportionate improvement, primarily associated with the addition of new datasets. While metrics are useful tools for guiding improvements, the Data Quality Score cannot accurately reflect the total value of the portal."
-thanks: 'Code and data are available at: github.com/amycfarrow/metaopendatatoronto.'
+abstract: "This report uses the data collected by Open Data Toronto for its Data Quality Score. Significant limitations in the scoring system, which is still in beta testing, are discussed. The data show that scores vary across the five quality dimensions, and there is some improvement over time, primarily associated with the addition of new packages. While metrics are useful tools for guiding improvements, the Data Quality Score cannot accurately reflect the holistic value of the portal."
+thanks: 'Code and data are available at: [github.com/amycfarrow/metaopendatatoronto](https://github.com/amycfarrow/metaopendatatoronto).'
 bibliography: references.bib
 ---
 
@@ -15,11 +15,11 @@ bibliography: references.bib
 knitr::opts_chunk$set(echo = TRUE)
 
 library(tidyverse)
-library(bookdown)   # for cross referencing figures and graphs; referencing
-library(scales)     # for fixing date axes
-library(DescTools)  # for capitalizing graph labels
-library(lubridate)  # extract month from recorded_at
-library(kableExtra) # for nicer tables
+library(bookdown)    # for cross referencing figures and graphs; referencing
+library(scales)      # for fixing date axes
+library(DescTools)   # for capitalizing graph labels
+library(lubridate)   # extract month from date_scored
+library(kableExtra)  # for nicer tables
 
 ```
 
@@ -27,15 +27,15 @@ library(kableExtra) # for nicer tables
 
 # Introduction
 
-The Toronto Open Data Portal was launched in 2009, following the increasing public interest in accessible and free data [@aboutportal]. The push for open data is a global trend, often linked to the ideas of open government, democratic participation, and civic empowerment [@Sayogo]. Ten years after the portal’s launch, technical abilities and expectations for open data had risen significantly [@aboutportal], leading the Open Data Toronto team to consider how the success of the portal could best be measured [@HernandezMedium1]. Beginning in December 2019, A Data Quality Score system was developed. In keeping with the spirit of open data, complete scoring results are available on the portal.
+The Toronto Open Data Portal was launched in 2009, following the increasing public interest in accessible and free data [@aboutportal]. The push for open data is a global trend, often linked to open government, democratic participation, and civic empowerment [@Sayogo]. Ten years after the portal’s launch, technical abilities and expectations for open data had risen significantly [@aboutportal], leading the Open Data Toronto team to consider how the success of the portal could best be measured [@HernandezMedium1]. Beginning in December 2019, A Data Quality Score system was developed. In keeping with the spirit of open data, complete scoring results are available on the portal.
 
-More than a year since the Data Quality Score was first used, we can begin to see patterns: scoring is irregular and quality is poor overall, but there is some improvement over time. This report will first consider the scoring data relative to time to consider how different scoring dimensions perform relative to one another. Second, it will demonstrate that scoring has taken place over uneven intervals of time. Third, it will demonstrate that increases in average Quality scores are associated with increased in number of datasets. Fourth, it will compare the grade levels given in January 2021 to those given six months prior and find that the proportion of higher-grade packages is increasing. Finally, it will discuss the limits of the Data Quality Score, in terms of bias and in terms of measuring the overall value of the portal. 
+More than a year since the Data Quality Score was first used, we can begin to see patterns: scoring is irregular and quality is poor overall, but there is some improvement over time. This report will first consider the scoring data relative to time to consider how different scoring dimensions perform relative to one another, finding that Metadata and Freshness scores are poor. Second, it will demonstrate that scoring has taken place over uneven intervals of time. Third, it will hypothesize that increases in average Quality scores may be associated with increased in number of packages. Fourth, it will compare the grade levels given in January 2021 to those given six months prior and find that the number of higher-grade packages is increasing. Finally, it will discuss the limits of the Data Quality Score, in terms of bias and in terms of measuring the societal value of the portal. 
 
 
 
 # Data
 
-Analysis for this project uses the R statistical programming language [@citeR], and more specifically, the `tidyverse` package for data manipulation [@citetidyverse]. Because the data is managed using R Projects, `here` is used to reference file locations [@citehere]. The data is imported from the Open Data Toronto Portal using the `opendatatoronto` package, which imports data directly [@citeopendatatoronto]. `lubridate` helps with manipulating dates and times [@citelubridate], while `scales` fixes date and time axes for visualizations [@citescales]. `DescTools` formats graph labels [@citeDescTools], and `kableExtra` formats tables [@citekableExtra]. `bookdown` is used to format the report [@citebookdown].
+Analysis for this project uses the R statistical programming language [@citeR], and more specifically, the `tidyverse` package for data manipulation [@citetidyverse]. Because the data is managed using R Projects, `here` is used to reference file locations [@citehere]. The data is imported from the Open Data Toronto Portal using the `opendatatoronto` package, which imports data directly [@citeopendatatoronto]; `haven` is used for reading and writing [@citehaven]. `lubridate` helps with manipulating dates and times [@citelubridate], while `scales` fixes date and time axes for visualizations [@citescales]. `DescTools` formats graph labels [@citeDescTools], and `kableExtra` formats tables [@citekableExtra]. `bookdown` is used to format the report [@citebookdown].
 
 ```{r, include = FALSE}
 
@@ -47,9 +47,9 @@ cleaned_data <- readr::read_csv(here::here("inputs/data/cleaned_data.csv")) %>%
 
 ```
 
-The data comes from the Data Quality Score project created by Open Data Toronto. The Open Data Toronto portal hosts datasets (referred to as packages) which contain files (referred to as resources) that are available to the public for free. The Data Quality Score project began in late 2019. Their goal was to create a measure other than number of packages that could be used to measure the portal's progress [@HernandezMedium1].  This project is still in the beta testing phase. Thus far, the same scoring model has been consistent [@HernandezEmail]. The scoring model may change in the future, however, as the project adapts [@HernandezMedium1].
+The data comes from the Data Quality Score project created by Open Data Toronto. The Open Data Toronto portal hosts datasets (referred to as packages) which contain files (referred to as resources) that are available to the public for free. The Data Quality Score project began in late 2019. Their goal was to create a measure other than number of packages that could be used to measure the portal's progress [@HernandezMedium1].  This project is still in the beta testing phase. Thus far, the scoring model has been consistent [@HernandezEmail]. The scoring model may change in the future, however, as the project adapts [@HernandezMedium1].
 
-The scoring is done by querying the Open Data Portal via the CKAN API [@metaopendata]. They decided to use five dimensions, each with a number of corresponding metrics, selected partially based on what could be automated quickly [@HernandezMedium1]. This choice of metrics biases the data: metrics were chosen because they were automatable, not necessarily because they best reflected the quality of the package. 
+The scoring is done by querying the Open Data Portal via the CKAN API [@metaopendata]. They decided to use five dimensions, each with a number of corresponding metrics, selected partially based on what could be automated quickly [@HernandezMedium1]. This choice of metrics biases the data: metrics were chosen because they were automatable, not necessarily because they best reflected the quality of the packages. 
 
 For each dimension, a package is given a score between zero and one [@HernandezMedium2]:
 
@@ -67,18 +67,16 @@ For each dimension, a package is given a score between zero and one [@HernandezM
   + Metric: Percent of valid features
   + Metric: Percent of columns with a constant value
 
-These five dimensions are then weighted (Accessibility 7%, Completeness 12%, Freshness 18%, Metadata 25%, and Usability 38%) into a Quality score between zero and one [@HernandezMedium1]. Before the Quality score is considered final, it is normalized [@HernandezMedium2]. 
+These five dimensions are then weighted (Accessibility 7%, Completeness 12%, Freshness 18%, Metadata 25%, and Usability 38%) into a Quality score between zero and one [@HernandezMedium1]. Before the Quality score is considered final, it is normalized [@HernandezMedium2]. It is also worth noting that this Quality score only measures quality on the portal end. There are many aspects, like accuracy, coherence, precision, reliability, and non-redundancy, which are important to the quality of a package but are not included in the scoring. This is because they are considered to be on the data-provider side, not the portal side [@HernandezMedium2].
 
-It is also worth noting that this Quality score only measures quality on the portal end. There are many aspects, like accuracy, coherence, precision, reliability, and non-redundancy, which are important to the quality of a package but are not included in the scoring. This is because they are considered to be on the data-provider side, not the portal side [@HernandezMedium2].
-
-When scoring is done, all possible packages on the portal are scored at the same time. In theory, this should reduce bias, as the sample is the entire population. However, many of the packages on the portal are not eligible for scoring. Data files, such as , are not scored. Currently, only data that is in the CKAN Datastore API is scored, due to ease of access for scoring [@HernandezMedium2]. This introduces an obvious source of bias: files that are not available through the API are often large (zip files) or non-ideal formats (Excel or PDF), meaning that the lower-quality packages may have been disproportionately excluded from the scoring. For this reason, the average scores can only be considered to reflect a specific subcategory of the whole data catalogue. Another issues is that Read Me files are scored and weighted exactly the same as data resources, despite having very different worths and qualities [@metaopendata].
+When scoring is done, all possible packages on the portal are scored at the same time. In theory, this should reduce bias, as the sample is the entire population. However, many of the packages on the portal are not eligible for scoring. Data files, such as , are not scored. Currently, only data that is in the CKAN Datastore API is scored, due to ease of access for scoring [@HernandezMedium2]. This introduces an obvious source of bias: files that are not available through the API are often large (zip files) or non-ideal formats (Excel or PDF), meaning that the lower-quality packages may have been disproportionately excluded from the scoring. For this reason, the average scores can only be considered to reflect a specific subcategory of the whole data catalogue. Another issues is that Read Me files are scored and weighted exactly the same as data resources, despite having very different values and qualities [@metaopendata].
 
 ```{r, include = FALSE}
 
 # Count the number of times scoring was done:
 number_of_scorings <- 
   count(cleaned_data %>%
-  select(recorded_at) %>%
+  select(date_scored) %>%
   distinct())
 
 # Count the number of packages that have ever been scored:
@@ -89,60 +87,75 @@ number_of_packages <-
 
 ```
 
-This data is available in the resource "catalogue-scorecard" in the package "Catalogue quality scores". There are 13 features: an id number and name for the package; Accessibility, Completeness, Freshness, Metadata, and Usability dimension scores for the package; Quality and normalized Quality scores for the package; grade and normalized grade for the package; the day and time the scoring was done; and the version of scoring that was used. I have used package name rather than ID to identify unique packages, and the normalized scores and grades as opposed to the non-normalized ones. There are 126 unique times when scoring was done, and 143 unique packages that were scored. The data requires minimal cleaning (converting the recorded_at feature to datetime), and has no missing values.
+This data is available in the resource titled 'catalogue-scorecard' in the package 'Catalogue quality scores'. There are 13 features: an ID number and name for the package; Accessibility, Completeness, Freshness, Metadata, and Usability dimension scores for the package; Quality and normalized Quality scores for the package; grade and normalized grade for the package; the day and time the scoring was done; and the version of scoring that was used. I have used package name rather than ID to identify unique packages. I chose to use the non-normalized quality scores, because the scores are normalized using min-max scaling relative to the other packages on the portal at that moment in time, confusing any trends over time. I used the normalized grades as opposed to the non-normalized ones, because the normalized grades are considered the final measure. There are 126 unique times when scoring was done, and 143 unique packages that were scored. The data requires minimal cleaning (converting the date_scored feature to datetime), and has no missing values.
 
-Figure \@ref(fig:facetedscorestime) shows all five metrics and the final Quality score over time. Each point represents a scored package, and the line is fitted to the overall trend. In the case of the Accessibility score, no line has been fitted: this is because all packages at all dates received a score of 1. This is logical, because Accessibility is based on availability through the Datastore API, and packages are only scored if they are available through the Datastore API. We can see that some dimensions perform better than others: Completeness and Usability are relatively high and stable, while Freshness is lower and Metadata is lower still. There is some fluctuation in these last two dimensions. The overall performance is poor: Quality scores trend around the 0.5 mark for the entire time that packages have been scored.
-
-```{r facetedscorestime, fig.cap = "Scores over time", fig.width = 10, fig.height = 5, echo = FALSE, message = FALSE, warning = FALSE}
+```{r facetedscorestime, fig.cap = "Scores over time", fig.width = 8, fig.height = 8, echo = FALSE, message = FALSE, warning = FALSE, out.width = '75%', fig.align = "center"}
 cleaned_data %>%
   # Create a pivot table so the different types of scores can easily be faceted:
   tidyr::pivot_longer(
     cols = c("quality", "completeness", "freshness", "metadata", "usability", "accessibility"),
-                      names_to = "metric",
-                      values_to = "scored"
-                      ) %>%
+    names_to = "metric",
+    values_to = "scored"
+    ) %>%
   
   # Relevel so that the facets are correctly ordered:
-  mutate(metric = fct_relevel(metric, "quality","accessibility", "completeness",
-                             "freshness", "metadata", "usability")) %>%
+  mutate(
+    metric = fct_relevel(metric, "quality","accessibility", "completeness",
+                         "freshness", "metadata", "usability")
+    ) %>%
   
   # Make a point plot to compare scores over time:
-  ggplot(aes(x = recorded_at, y = scored)) +
-  geom_point(alpha = 0.1, color = "darkturquoise", size = .5) +
+  ggplot(aes(x = date_scored, y = scored)) +
+  geom_point(alpha = 0.05, color = "darkturquoise", size = .5) +
   geom_smooth(colour = "magenta3", size = 1) +
-  scale_y_continuous(limits = c(0,1)) +
+  scale_y_continuous(limits = c(0, 1)) +
   labs(x = "Date Scored",
        y = "Grade",
        title = "Scores Are Relatively Stable Over Time") +
   
   # Correctly format the dates for easy readability:
-  scale_x_datetime(breaks = date_breaks("3 months"),
-                   minor_breaks = date_breaks("1 month"),
-                   labels = date_format("%b%d'%y", tz="EST"),
-                   expand = c(0,0)) +
-  theme_light() +
+  scale_x_datetime(breaks = c(as.POSIXct("2020-01-01 00:01 EST"), 
+                              as.POSIXct("2020-03-01 01:01 EST"),
+                              as.POSIXct("2020-05-01 01:01 EST"),
+                              as.POSIXct("2020-07-01 01:01 EST"),
+                              as.POSIXct("2020-09-01 01:01 EST"),
+                              as.POSIXct("2020-11-01 01:01 EST"),
+                              as.POSIXct("2021-01-01 01:01 EST")),
+                    minor_breaks = NULL,
+                    labels = date_format("%b\n%Y", tz="EST"),  # Format the x-axis scale to show month names
+                   # set x-axis limits 
+                   limits = as.POSIXct(strptime(c("2019-12-16 00:00", "2021-01-25 00:00"), 
+                                                 format = "%Y-%m-%d %H:%M"))
+                   ) +
   
   # Facet the plot so we can compare across different types of score:
-  facet_wrap(~ metric, ncol = 3, labeller = labeller(metric = StrCap))
+  facet_wrap(~ metric, ncol = 2, labeller = labeller(metric = StrCap)) +
+  
+  # Modify theme for legibility
+  theme_light() +
+  theme(strip.background = element_rect(fill = "white"), strip.text.x = element_text(color = "black"))
+
 
 ```
 
-Figure \@ref(fig:facetedscorestime) also shows an interesting pattern with regards to the date the package was scored: there are erratic scores beginning in December 2019, but the frequency of scoring becomes regular in July 2020 and the frequency increased in November 2020.
+Figure \@ref(fig:facetedscorestime) shows all five dimension scores and the final Quality score over time. Each point represents a scored package, and the line is fitted to the overall trend. In the case of the Accessibility score, no line has been fitted: this is because all packages at all dates received a score of 1. This is logical, because Accessibility is based on availability through the Datastore API, and packages are only scored if they are available through the Datastore API. We can see that some dimensions perform better than others: Completeness and Usability are relatively high and stable, while Freshness is lower and Metadata is lower still. There is some fluctuation in these last two dimension scores over time. The distributions of the dimension scores are wide, especially the Freshness and Metadata distributions, indicating that quality varies significantly depending on package.  The overall performance is moderate: Quality scores trend just below the 0.7 mark for the entire time that packages have been scored.
 
-Table \@ref(tab:monthbreakdown) shows this trend more clearly. The DQS program was released in December 2019, and intermittently manually run in February and March 2020. It was not run at all in April, May, or June 2020. In July 2020, a system was put in place for automatic scoring, but the DQS team found that it was not reliable or consistent enough. Subsequently, in November 2020, they switched to another platform and increased the scoring frequency to daily. This may change again in the future, as the DQS team is finding daily scoring to be excessive [@HernandezEmail].
+Figure \@ref(fig:facetedscorestime) also shows an interesting pattern with regards to the date the package was scored: there are erratic scores beginning in December 2019, but the density of scoring increases in July 2020 and again in November 2020.
+
+Table \@ref(tab:monthbreakdown) shows this trend more clearly. The DQS program was released in December 2019, and intermittently manually run in February and March 2020. It was not run at all in April, May, or June 2020. In July 2020, a system was put in place for automatic scoring, but the DQS team found that it was not reliable or consistent enough. Subsequently, in November 2020, they switched to another platform and increased the scoring frequency to daily. This may change again in the future, as the DQS team is finding daily scoring to be excessive considering the portal is not updated that frequently [@HernandezEmail].
 
 ```{r monthbreakdown, echo = FALSE, message = FALSE, warning = FALSE}
 cleaned_data %>%
   
   # Create a new variable that only considers the year and month, not the day or time:
-  mutate(year_month = format(as.Date(recorded_at), "%Y-%m")) %>%
+  mutate(year_month = format(as.Date(date_scored), "%Y-%m")) %>%
   
   # Group the scorings by year and month:
   group_by(year_month) %>%
   
   # Summarise counts and means for each month:
   summarise(scored = n_distinct(package),
-            scores = n_distinct(recorded_at),
+            scores = n_distinct(date_scored),
             mean_accessibility = mean(accessibility),
             mean_completeness = mean(completeness),
             mean_freshness = mean(freshness),
@@ -154,9 +167,9 @@ cleaned_data %>%
   # Put the results in a table:
   knitr::kable(digits = 3,
                col.names = c("Year and Month", "Unique Packages Scored",
-                "Times the Portal was Scored", "Accessibility",
-                "Completeness", "Freshness", "Metadata",
-                "Usability", "Quality"),
+                             "Times the Portal was Scored", "Accessibility",
+                             "Completeness", "Freshness", "Metadata",
+                             "Usability", "Quality"),
                booktabs = TRUE,
                escape = FALSE,
                caption = "Scoring by month"
@@ -173,52 +186,69 @@ cleaned_data %>%
   column_spec(7, width = "5em") %>%
   column_spec(8, width = "5em") %>%
   column_spec(9, width = "5em") %>%
-  kableExtra::kable_styling(latex_options = "scale_down")
+  pack_rows("Manual Scoring", 1, 3) %>%
+  pack_rows("Scheduled Scoring", 4, 10) %>%
+  kableExtra::kable_styling(latex_options = c("scale_down", "hold_position"))
+
 ```
 
-Figure \@ref(fig:scoringfrequency) takes a more granular look at this trend. Every bar represents a time that the portal was scored. The height of the bar shows the number of packages that were scored, and the colour of the bar indicates the average Quality score that was given. We can see the regular scoring beginning July 27th, 2020, and the more frequent scoring beginning on November 10th, 2020.
+We can see a slight upwards trend in average Quality scores since the automated scoring began in July. However, we can also see that while Accessibility, Completeness, and Usability scores are strong, Freshness and Metadata scores are weak, indicating that the data needs to be refreshed more often and the metadata more carefully completed.
 
-```{r scoringfrequency, fig.cap="Scoring frequency over time", fig.width=10, fig.height=4, echo = FALSE, message = FALSE, warning = FALSE}
+```{r scoringfrequency, fig.cap="Scoring frequency over time", fig.width=10, fig.height=3.5, echo = FALSE, message = FALSE, warning = FALSE}
 
 ## Summarize each scoring by counting the number of packages scored and
 ## calculating the average Quality score given
 cleaned_data %>%
-  group_by(recorded_at) %>%
+  group_by(date_scored) %>%
   summarise(
     num_scored = n_distinct(package),
     mean_quality = mean(quality)
   ) %>%
 
 ## Plotting the number of packages scored over time, with the average Quality score 
-## shown using a color gradient.
-  ggplot(aes(x = recorded_at, y = num_scored, color = mean_quality)) +
-  geom_point(alpha = 0.7, size =1 )+
-  geom_segment(aes(x = recorded_at, xend = recorded_at, y = 0, yend = num_scored), alpha = 0.7) +
+## shown using a color gradient. Lollipop graph uses point and segment.
+  ggplot(aes(x = date_scored, y = num_scored, color = mean_quality)) +
+  geom_point(alpha = 0.7, size = 1) +
+  geom_segment(aes(x = date_scored, xend = date_scored, y = 0, yend = num_scored), alpha = 0.7) +
   
   # Manipulate colors, labels, and scales for easier presentation:
   scale_color_gradientn(colors = c('darkturquoise', 'royalblue2', 'magenta3')) +
-  labs(color = "Average \nQuality \nscore \nacross all \npackages",
-    x = "Date recorded",
-    y = "Number of packages scored",
-    title = "Scoring Frequency Increased Over the Beta Testing Period")+ 
-  scale_x_datetime( breaks = date_breaks("2 months"),
-                    minor_breaks = date_breaks("1 month"),
-                    labels = date_format("%b%d'%y",tz="EST"), # Format the x-axis scale to show Mar13'21, for example
-                    expand = c(0,0), # spaces out scale labels for legibility
-                    limits = as.POSIXct(strptime(c("2019-12-16 00:00", "2021-01-25 00:00"), # set x-axis limits
+
+  scale_x_datetime(breaks = c(as.POSIXct("2020-01-01 00:01 EST"), # Set breaks on the first of the month
+                              as.POSIXct("2020-02-01 01:01 EST"),
+                              as.POSIXct("2020-03-01 01:01 EST"),
+                              as.POSIXct("2020-04-01 01:01 EST"),
+                              as.POSIXct("2020-05-01 01:01 EST"),
+                              as.POSIXct("2020-06-01 01:01 EST"),
+                              as.POSIXct("2020-07-01 01:01 EST"),
+                              as.POSIXct("2020-08-01 01:01 EST"),
+                              as.POSIXct("2020-09-01 01:01 EST"),
+                              as.POSIXct("2020-10-01 01:01 EST"),
+                              as.POSIXct("2020-11-01 01:01 EST"),
+                              as.POSIXct("2020-12-01 01:01 EST"),
+                              as.POSIXct("2021-01-01 01:01 EST")),
+                    minor_breaks = NULL,  # Remove minor break lines
+                    labels = date_format("%b\n%Y",tz="EST"),  # Format the x-axis scale to show month names
+                    limits = as.POSIXct(strptime(c("2019-12-16 00:00", "2021-01-25 00:00"),  # x-axis limits
                     format = "%Y-%m-%d %H:%M"))) +
+  labs(color = "Average \nQuality \nscore \nacross all \npackages",
+       x = "Date recorded",
+       y = "Number of packages scored",
+       title = "Scoring Frequency Increased Over the Beta Testing Period") + 
   theme_light()
 ```
 
+Figure \@ref(fig:scoringfrequency) takes a more granular look at average quality, scoring frequency, and scoring volume over time. Every bar represents a time that the portal was scored. The height of the bar shows the number of packages that were scored, and the colour of the bar indicates the average Quality score that was given. We can see the regular scoring beginning July 27th, 2020, and the more frequent scoring beginning on November 10th, 2020.
+
 In Figure \@ref(fig:scoringfrequency), we can also see that the number of packages scored seems to change at the same time as the average Quality score. Most strikingly, the November 19th scoring shows that 23 more packages were scored than on the previous day, and the average Quality score increased from  0.4932143 to 0.5559259. This suggests that a change in average score over time may reflect the increasing quality of newly added packages, rather than the increasing quality of the existent packages.
 
-The five dimension scores and final Quality scores are not what a user of the data portal sees. The Open Data Toronto team decided to break the full spectrum of Quality scores into three medal grades [@HernandezMedium2]:
+Data portal users do not see the five dimension scores and final Quality scores. Because the Open Data Toronto team wanted the focus to be on the overall quality rather than minute changes in numerical scores, they decided to break the full spectrum of Quality scores into three medal grades [@HernandezMedium2]:
 
-* Bronze: Quality score less than 0.6
-* Silver: Quality score 0.6 to 0.8
-* Gold: Quality score greater than 0.8
+* Bronze: normalized Quality score less than 0.6
+* Silver: normalized Quality score 0.6 to 0.8
+* Gold: normalized Quality score greater than 0.8
 
-These medal grades are what is actually visible to the public, as we can see in the case of the Catalogue Quality Scores package itself, which receives a silver grade as of January 24th 2021, shown in Figure \@ref(fig:silverscore).
+These medal grades are what is actually visible to the public, as we can see in the case of the 'Catalogue quality scores' package itself, which receives a silver grade as of January 24th 2021 (shown in Figure \@ref(fig:silverscore)).
 
 ```{r silverscore, fig.cap = "The Catalogue Quality Scores package receives a silver grade", echo = FALSE, message = FALSE, warning = FALSE, out.width = '100%'}
 
@@ -226,48 +256,46 @@ knitr::include_graphics(rep("CatalogueQualityScoresMedal.png"))
 
 ```
 
-Since the grades are what the portal users see, we should consider the proportions of bronze, silver, and gold packages on the portal. Using the first systematized evaluation in July 2020 and the most recent evaluation in January 2021, we can see how the proportions have changed in the last half year. Figure \@ref(fig:gradebars) shows that while there are still proportionally more Bronze packages overall, bronze and silver packages make up a smaller proportion than they did in July, and gold packages make up a larger proportion.
+Since the grades are what the portal users see, we should consider the numbers of bronze, silver, and gold packages on the portal. Using the first systematized evaluation in July 2020 and the most recent evaluation in January 2021, we can see how the numbers have changed in the last half year. Figure \@ref(fig:gradebars) shows that while there are still proportionally more Bronze packages overall and the number of Bronze packages has increased, the number of Gold packages increased far more.
 
-```{r gradebars, fig.cap="Comparing grade proportions in July and January",echo = FALSE, message = FALSE, warning = FALSE, fig.width=8, fig.height=5, out.width = '80%'}
+```{r gradebars, fig.cap="Comparing grade numbers in July and January", echo = FALSE, message = FALSE, warning = FALSE, fig.width = 6, fig.height = 4, out.width = '60%', fig.align = "center"}
 
 # Summarize the scorings done on January 24th:
 latest_cleaned_data_summary <- 
   cleaned_data %>%
-  filter(recorded_at > as_datetime("2021-01-23 00:05:14")) %>%
+  filter(date_scored > as_datetime("2021-01-23 00:05:14")) %>%
   group_by(grade) %>%
   summarise(
-    num_packages = n_distinct(package),
+    packages_count = n_distinct(package),
     when = "latest"
-  ) %>%
-  mutate(prop = num_packages / sum(num_packages))
+  )
 
 # Summarize the scorings done on July 27th:
 earliest_cleaned_data_summary <- 
   cleaned_data %>%
-  filter(recorded_at < as_datetime("2020-07-27 18:05:05")) %>%
-  filter(recorded_at > as_datetime("2020-03-14 18:17:26")) %>%
+  filter(date_scored < as_datetime("2020-07-27 18:05:05")) %>%
+  filter(date_scored > as_datetime("2020-03-14 18:17:26")) %>%
   group_by(grade) %>%
   summarise(
-    num_packages = n_distinct(package),
+    packages_count = n_distinct(package),
     when = "earliest"
-  )%>%
-  mutate(prop = num_packages / sum(num_packages))
+  )
 
 # Combine the July and January scoring summaries into one table:
 earliest_cleaned_data_summary %>%
   full_join(latest_cleaned_data_summary) %>%
 
-# Plot the combined data in a bar graph to show proportions of different grade levels in January and  July
-ggplot(aes(x = grade, y = prop, fill = when)) +
+# Plot the combined data in a bar graph to show counts of different grade levels in January and  July
+ggplot(aes(x = grade, y = packages_count, fill = when)) +
   geom_bar(stat = "identity", position = position_dodge()) +
-  scale_y_continuous(limits = c(0, .7))+
+  scale_y_continuous(limits = c(0, 90))+
   
   # Manipulate labels and styling:
   labs(x = "Grade",
        fill = "Date",
        color = "Grade",
-       y = "Proportion of packages on the portal",
-       title = "Proportionally, fewer silver and bronze and more gold packages")+
+       y = "Number of packages on the portal",
+       title = "An increase in Bronze and especially Gold grade packages")+
   scale_fill_manual(values = c('darkturquoise', 'royalblue2'),
                     labels = c("July 27th, 2020", "January 23rd, 2021"))+
   theme_light()
@@ -278,18 +306,18 @@ ggplot(aes(x = grade, y = prop, fill = when)) +
 # Count the number of packages scored on July 27th 2020:
 earliest_count_packages_scored <-
   sum(earliest_cleaned_data_summary %>%
-  select(num_packages))
+  select(packages_count))
 
 # Count the number of packages scored on January 24th 2020:
 latest_count_packages_scored <-
   sum(latest_cleaned_data_summary %>%
-  select(num_packages))
+  select(packages_count))
 
 ```
 
-The change in proportions indicates that the portal is improving slightly over time. The other sign of improvement is the number of scored packages: it has increased over the year period from 103 to 138, which means that the number of API-accessible packages has increased. Still, The vast majority of packages receive a Bronze rating, indicating that there are many improvements to be made. Freshness and Metadata scores are especially weak, indicating that the data needs to be refreshed more often and the metadata more carefully completed.
+The change in numbers indicates that the portal is improving slightly over time, from a user's perspective. Users may also perceive improvement based on the total number of packages scored: from July 27th 2020 to January 24th 2021, it has increased from 103 to 138, which means that the number of API-accessible packages has increased.
 
-While grades are an excellent way to communicate the likely overall quality of individual packages to portal users, looking at patterns in the scores is not the best way to assess the overall state of the portal. This is because there are limitations to these measures: not all packages are scored, there are significant factors that are not considered scorable (like accuracy and reliability), the scoring system is still being tested, and the scoring schedule is still in flux. More importantly, an open data portal is not only about the quality of packages. @Sayogo reviewed government open data portals and created a model for assessing the value of an open data portal. Specifically, they were interested in the importance of data manipulation and engagement for user experience. A portal with extensive manipulation capabilities allows users to amass, sort, and analyze data on the portal, while advanced engagement means that users are collaborative creators who can work with the portal and other users. Both of these capabilities make it easier to engage with the open data, hopefully enhancing the impact that an open data portal has on the civic community. Whenever assessing an open data portal based on a score, especially one with significant limitations, we should remember that it represents only one part of the portal's social value.
+While grades are an excellent way to communicate the likely overall quality of individual packages to portal users, looking at patterns in the scores is not the best way to assess the overall state of the portal. This is because there are limitations to these measures: not all packages are scored, there are significant factors that are not considered scorable (like accuracy and reliability), the scoring system is still being tested, and the scoring schedule is still in flux. More importantly, an open data portal is not only about the quality of packages. @Sayogo reviewed government open data portals and created a model for assessing the value of an open data portal. Specifically, they were interested in the importance of data manipulation and engagement for user experience. A portal with extensive manipulation capabilities allows users to amass, sort, and analyze data on the portal, while advanced engagement means that users are collaborative creators who can work with the portal and other users. Both of these capabilities make it easier to engage with the open data, hopefully enhancing the impact that an open data portal has on the civic community. Whenever assessing an open data portal based on a score, especially one with significant limitations, we should remember that it represents only one part of the portal's societal value.
 
 
 

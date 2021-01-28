@@ -16,7 +16,7 @@ library(tidyverse)
 raw_data <-
   opendatatoronto::search_packages("Catalogue quality scores") %>%
   opendatatoronto::list_package_resources() %>%
-  dplyr::filter(name %in% c("catalogue-scorecard")) %>% # This is the name of the resource we are interested in.
+  dplyr::filter(name %in% c("catalogue-scorecard")) %>%  # This is the name of the resource we are interested in.
   dplyr::select(id) %>%
   opendatatoronto::get_resource()
 
