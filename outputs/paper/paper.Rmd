@@ -29,7 +29,7 @@ library(kableExtra)  # for nicer tables
 
 The Toronto Open Data Portal was launched in 2009, following the increasing public interest in accessible and free data [@aboutportal]. The push for open data is a global trend, often linked to open government, democratic participation, and civic empowerment [@Sayogo]. Ten years after the portal’s launch, technical abilities and expectations for open data had risen significantly [@aboutportal], leading the Open Data Toronto team to consider how the success of the portal could best be measured [@HernandezMedium1]. Beginning in December 2019, A Data Quality Score system was developed. In keeping with the spirit of open data, complete scoring results are available on the portal.
 
-More than a year since the Data Quality Score was first used, we can begin to see patterns: scoring is irregular and quality is poor overall, but there is some improvement over time. This report will first consider the scoring data relative to time to consider how different scoring dimensions perform relative to one another, finding that Metadata and Freshness scores are poor. Second, it will demonstrate that scoring has taken place over uneven intervals of time. Third, it will hypothesize that increases in average Quality scores may be associated with increased in number of packages. Fourth, it will compare the grade levels given in January 2021 to those given six months prior and find that the number of higher-grade packages is increasing. Finally, it will discuss the limits of the Data Quality Score, in terms of bias and in terms of measuring the societal value of the portal. 
+More than a year since the Data Quality Score was first used, we can begin to see patterns: scoring is irregular and quality is poor overall, but there is some improvement over time. This report will first consider the scoring data relative to time to consider how different scoring dimensions perform relative to one another, finding that Metadata and Freshness scores are poor. Second, it will demonstrate that scoring has taken place over uneven intervals of time. Third, it will hypothesize that increases in average Quality scores may be associated with increases in number of packages. Fourth, it will compare the grade levels given in January 2021 to those given six months prior and find that the number of higher-grade packages is increasing. Finally, it will discuss the limits of the Data Quality Score, in terms of bias and in terms of measuring the societal value of the portal. 
 
 
 
@@ -69,7 +69,7 @@ For each dimension, a package is given a score between zero and one [@HernandezM
 
 These five dimensions are then weighted (Accessibility 7%, Completeness 12%, Freshness 18%, Metadata 25%, and Usability 38%) into a Quality score between zero and one [@HernandezMedium1]. Before the Quality score is considered final, it is normalized [@HernandezMedium2]. It is also worth noting that this Quality score only measures quality on the portal end. There are many aspects, like accuracy, coherence, precision, reliability, and non-redundancy, which are important to the quality of a package but are not included in the scoring. This is because they are considered to be on the data-provider side, not the portal side [@HernandezMedium2].
 
-When scoring is done, all possible packages on the portal are scored at the same time. In theory, this should reduce bias, as the sample is the entire population. However, many of the packages on the portal are not eligible for scoring. Data files, such as , are not scored. Currently, only data that is in the CKAN Datastore API is scored, due to ease of access for scoring [@HernandezMedium2]. This introduces an obvious source of bias: files that are not available through the API are often large (zip files) or non-ideal formats (Excel or PDF), meaning that the lower-quality packages may have been disproportionately excluded from the scoring. For this reason, the average scores can only be considered to reflect a specific subcategory of the whole data catalogue. Another issues is that Read Me files are scored and weighted exactly the same as data resources, despite having very different values and qualities [@metaopendata].
+When scoring is done, all possible packages on the portal are scored at the same time. In theory, this should reduce bias, as the sample is the entire population. However, many of the packages on the portal are not eligible for scoring. Currently, only data that is in the CKAN Datastore API is scored, due to ease of access for scoring [@HernandezMedium2]. This introduces an obvious source of bias: files that are not available through the API are often large (zip files) or non-ideal formats (Excel or PDF), meaning that the lower-quality packages may have been disproportionately excluded from the scoring. For this reason, the average scores can only be considered to reflect a specific subcategory of the whole data catalogue. Another issue is that Read Me files are scored and weighted exactly the same as data resources, despite having very different values and qualities [@metaopendata].
 
 ```{r, include = FALSE}
 
@@ -89,7 +89,7 @@ number_of_packages <-
 
 This data is available in the resource titled 'catalogue-scorecard' in the package 'Catalogue quality scores'. There are 13 features: an ID number and name for the package; Accessibility, Completeness, Freshness, Metadata, and Usability dimension scores for the package; Quality and normalized Quality scores for the package; grade and normalized grade for the package; the day and time the scoring was done; and the version of scoring that was used. I have used package name rather than ID to identify unique packages. I chose to use the non-normalized quality scores, because the scores are normalized using min-max scaling relative to the other packages on the portal at that moment in time, confusing any trends over time. I used the normalized grades as opposed to the non-normalized ones, because the normalized grades are considered the final measure. There are 126 unique times when scoring was done, and 143 unique packages that were scored. The data requires minimal cleaning (converting the date_scored feature to datetime), and has no missing values.
 
-```{r facetedscorestime, fig.cap = "Scores over time", fig.width = 8, fig.height = 8, echo = FALSE, message = FALSE, warning = FALSE, out.width = '75%', fig.align = "center"}
+```{r facetedscorestime, fig.cap = "Scores over time", fig.width = 8, fig.height = 8, echo = FALSE, message = FALSE, warning = FALSE, out.width = '80%', fig.align = "center"}
 cleaned_data %>%
   # Create a pivot table so the different types of scores can easily be faceted:
   tidyr::pivot_longer(
@@ -109,23 +109,23 @@ cleaned_data %>%
   geom_point(alpha = 0.05, color = "darkturquoise", size = .5) +
   geom_smooth(colour = "magenta3", size = 1) +
   scale_y_continuous(limits = c(0, 1)) +
-  labs(x = "Date Scored",
+  labs(x = "Date scored",
        y = "Grade",
-       title = "Scores Are Relatively Stable Over Time") +
+       title = "Scores are relatively stable over time") +
   
   # Correctly format the dates for easy readability:
-  scale_x_datetime(breaks = c(as.POSIXct("2020-01-01 00:01 EST"), 
-                              as.POSIXct("2020-03-01 01:01 EST"),
-                              as.POSIXct("2020-05-01 01:01 EST"),
-                              as.POSIXct("2020-07-01 01:01 EST"),
-                              as.POSIXct("2020-09-01 01:01 EST"),
-                              as.POSIXct("2020-11-01 01:01 EST"),
-                              as.POSIXct("2021-01-01 01:01 EST")),
-                    minor_breaks = NULL,
-                    labels = date_format("%b\n%Y", tz="EST"),  # Format the x-axis scale to show month names
-                   # set x-axis limits 
-                   limits = as.POSIXct(strptime(c("2019-12-16 00:00", "2021-01-25 00:00"), 
-                                                 format = "%Y-%m-%d %H:%M"))
+  scale_x_datetime(limits = as.POSIXct(strptime(c("2019-12-16 10:00:00", "2021-01-25 10:00:00"), 
+                                                 format = "%Y-%m-%d %H:%M:%S")),
+                   expand = c(0, 0),  # keep the sides of the plot snug to the limits
+                   labels = date_format("%b\n%Y"),  # Format the x-axis scale to show month names
+                   breaks = c(as.POSIXct("2020-01-01 01:00:00"),  # Set breaks on the first of the month
+                              as.POSIXct("2020-03-01 01:00:00"),
+                              as.POSIXct("2020-05-01 01:00:00"),
+                              as.POSIXct("2020-07-01 01:00:00"),
+                              as.POSIXct("2020-09-01 01:00:00"),
+                              as.POSIXct("2020-11-01 01:00:00"),
+                              as.POSIXct("2021-01-01 01:00:00")),
+                    minor_breaks = NULL,  # Remove minor break lines
                    ) +
   
   # Facet the plot so we can compare across different types of score:
@@ -145,7 +145,7 @@ Figure \@ref(fig:facetedscorestime) also shows an interesting pattern with regar
 Table \@ref(tab:monthbreakdown) shows this trend more clearly. The DQS program was released in December 2019, and intermittently manually run in February and March 2020. It was not run at all in April, May, or June 2020. In July 2020, a system was put in place for automatic scoring, but the DQS team found that it was not reliable or consistent enough. Subsequently, in November 2020, they switched to another platform and increased the scoring frequency to daily. This may change again in the future, as the DQS team is finding daily scoring to be excessive considering the portal is not updated that frequently [@HernandezEmail].
 
 ```{r monthbreakdown, echo = FALSE, message = FALSE, warning = FALSE}
-cleaned_data %>%
+df <- cleaned_data %>%
   
   # Create a new variable that only considers the year and month, not the day or time:
   mutate(year_month = format(as.Date(date_scored), "%Y-%m")) %>%
@@ -163,33 +163,54 @@ cleaned_data %>%
             mean_usability = mean(usability),
             mean_quality = mean(quality)
   ) %>%
-  
+  # Tidy up names so they are better for the table display:
+  rename("Unique Packages Scored" = scored,
+         "Times the Portal was Scored" = scores, 
+         "Accessibility" = mean_accessibility,
+         "Completeness" = mean_completeness, 
+         "Freshness" = mean_freshness, 
+         "Metadata" = mean_metadata,
+         "Usability" = mean_usability, 
+         "Quality" = mean_quality) %>%
+  mutate_if(is.numeric, round, 3) # round score averages to 3 decimal places
+
+# transpose the tibble: from https://stackoverflow.com/questions/42790219/how-do-i-transpose-a-tibble-in-r
+as_tibble(cbind(nms = names(df), t(df)))  %>%
+  slice(2:9) %>% #removing the top row, which contains the dates--these are replaced below as column names.
+
   # Put the results in a table:
-  knitr::kable(digits = 3,
-               col.names = c("Year and Month", "Unique Packages Scored",
-                             "Times the Portal was Scored", "Accessibility",
-                             "Completeness", "Freshness", "Metadata",
-                             "Usability", "Quality"),
+  knitr::kable(col.names = c("",
+                             "Dec 2019",
+                             "Feb 2020",
+                             "Mar 2020",
+                             "Jul 2020",
+                             "Aug 2020",
+                             "Sept 2020",
+                             "Oct 2020",
+                             "Nov 2020",
+                             "Dec 2020",
+                             "Jan 2021"),
                booktabs = TRUE,
                escape = FALSE,
                caption = "Scoring by month"
   ) %>%
   
   # Style the table:
-  add_header_above(c("", "Counts" = 2, "Average Scores" = 6)) %>%
-  column_spec(1, width = "5em") %>%
-  column_spec(2, width = "5em") %>%
-  column_spec(3, width = "5em") %>%
-  column_spec(4, width = "5em") %>%
-  column_spec(5, width = "5em") %>%
-  column_spec(6, width = "5em") %>%
-  column_spec(7, width = "5em") %>%
-  column_spec(8, width = "5em") %>%
-  column_spec(9, width = "5em") %>%
-  pack_rows("Manual Scoring", 1, 3) %>%
-  pack_rows("Scheduled Scoring", 4, 10) %>%
+  add_header_above(c("", "Manual Scoring" = 3, "Scheduled Scoring" = 7), align = "l") %>%
+  column_spec(1, width = "14em") %>%
+  column_spec(2, width = "3em") %>%
+  column_spec(3, width = "3em") %>%
+  column_spec(4, width = "3em") %>%
+  column_spec(5, width = "3em") %>%
+  column_spec(6, width = "3em") %>%
+  column_spec(7, width = "3em") %>%
+  column_spec(8, width = "3em") %>%
+  column_spec(9, width = "3em") %>%
+  column_spec(10, width = "3em") %>%
+  column_spec(11, width = "3em") %>%
+  pack_rows("Counts", 1, 2) %>%
+  pack_rows("Average Scores", 3, 8) %>%
   kableExtra::kable_styling(latex_options = c("scale_down", "hold_position"))
-
 ```
 
 We can see a slight upwards trend in average Quality scores since the automated scoring began in July. However, we can also see that while Accessibility, Completeness, and Usability scores are strong, Freshness and Metadata scores are weak, indicating that the data needs to be refreshed more often and the metadata more carefully completed.
@@ -214,27 +235,29 @@ cleaned_data %>%
   # Manipulate colors, labels, and scales for easier presentation:
   scale_color_gradientn(colors = c('darkturquoise', 'royalblue2', 'magenta3')) +
 
-  scale_x_datetime(breaks = c(as.POSIXct("2020-01-01 00:01 EST"), # Set breaks on the first of the month
-                              as.POSIXct("2020-02-01 01:01 EST"),
-                              as.POSIXct("2020-03-01 01:01 EST"),
-                              as.POSIXct("2020-04-01 01:01 EST"),
-                              as.POSIXct("2020-05-01 01:01 EST"),
-                              as.POSIXct("2020-06-01 01:01 EST"),
-                              as.POSIXct("2020-07-01 01:01 EST"),
-                              as.POSIXct("2020-08-01 01:01 EST"),
-                              as.POSIXct("2020-09-01 01:01 EST"),
-                              as.POSIXct("2020-10-01 01:01 EST"),
-                              as.POSIXct("2020-11-01 01:01 EST"),
-                              as.POSIXct("2020-12-01 01:01 EST"),
-                              as.POSIXct("2021-01-01 01:01 EST")),
+  scale_x_datetime(limits = as.POSIXct(strptime(c("2019-12-16 10:00:00", "2021-01-25 10:00:00"), 
+                                                 format = "%Y-%m-%d %H:%M:%S")),
+                   expand = c(0, 0),  # keep the sides of the plot snug to the limits
+                   labels = date_format("%b\n%Y"),   # Format the x-axis scale to show month names
+                   breaks = c(as.POSIXct("2020-01-01 01:00:00"),  # Set breaks on the first of the month
+                              as.POSIXct("2020-02-01 01:00:00"),
+                              as.POSIXct("2020-03-01 01:00:00"),
+                              as.POSIXct("2020-04-01 01:00:00"),
+                              as.POSIXct("2020-05-01 01:00:00"),
+                              as.POSIXct("2020-06-01 01:00:00"),
+                              as.POSIXct("2020-07-01 01:00:00"),
+                              as.POSIXct("2020-08-01 01:00:00"),
+                              as.POSIXct("2020-09-01 01:00:00"),
+                              as.POSIXct("2020-10-01 01:00:00"),
+                              as.POSIXct("2020-11-01 01:00:00"),
+                              as.POSIXct("2020-12-01 01:00:00"),
+                              as.POSIXct("2021-01-01 01:00:00")),
                     minor_breaks = NULL,  # Remove minor break lines
-                    labels = date_format("%b\n%Y",tz="EST"),  # Format the x-axis scale to show month names
-                    limits = as.POSIXct(strptime(c("2019-12-16 00:00", "2021-01-25 00:00"),  # x-axis limits
-                    format = "%Y-%m-%d %H:%M"))) +
+                   ) +
   labs(color = "Average \nQuality \nscore \nacross all \npackages",
        x = "Date recorded",
        y = "Number of packages scored",
-       title = "Scoring Frequency Increased Over the Beta Testing Period") + 
+       title = "Scoring frequency increased over the beta testing period") + 
   theme_light()
 ```
 
@@ -250,7 +273,7 @@ Data portal users do not see the five dimension scores and final Quality scores.
 
 These medal grades are what is actually visible to the public, as we can see in the case of the 'Catalogue quality scores' package itself, which receives a silver grade as of January 24th 2021 (shown in Figure \@ref(fig:silverscore)).
 
-```{r silverscore, fig.cap = "The Catalogue Quality Scores package receives a silver grade", echo = FALSE, message = FALSE, warning = FALSE, out.width = '100%'}
+```{r silverscore, fig.cap = "The 'Catalogue quality scores' package receives a silver grade", echo = FALSE, message = FALSE, warning = FALSE, out.width = '100%'}
 
 knitr::include_graphics(rep("CatalogueQualityScoresMedal.png"))
 

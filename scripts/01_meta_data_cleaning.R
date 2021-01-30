@@ -12,6 +12,9 @@
 
 
 #### Workspace setup ####
+# install.packages("haven")
+# install.packages("tidyverse")
+# install.packages("lubridate")
 library(haven)
 library(tidyverse)
 library(lubridate)  # for handing the recorded_at variable
