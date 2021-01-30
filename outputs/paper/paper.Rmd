@@ -125,7 +125,7 @@ cleaned_data %>%
                               as.POSIXct("2020-09-01 01:00:00"),
                               as.POSIXct("2020-11-01 01:00:00"),
                               as.POSIXct("2021-01-01 01:00:00")),
-                    minor_breaks = NULL,  # Remove minor break lines
+                    #minor_breaks = NULL,  # Remove minor break lines
                    ) +
   
   # Facet the plot so we can compare across different types of score:
@@ -164,8 +164,8 @@ df <- cleaned_data %>%
             mean_quality = mean(quality)
   ) %>%
   # Tidy up names so they are better for the table display:
-  rename("Unique Packages Scored" = scored,
-         "Times the Portal was Scored" = scores, 
+  rename("Unique packages scored" = scored,
+         "Times the portal was scored" = scores, 
          "Accessibility" = mean_accessibility,
          "Completeness" = mean_completeness, 
          "Freshness" = mean_freshness, 
@@ -196,7 +196,7 @@ as_tibble(cbind(nms = names(df), t(df)))  %>%
   ) %>%
   
   # Style the table:
-  add_header_above(c("", "Manual Scoring" = 3, "Scheduled Scoring" = 7), align = "l") %>%
+  add_header_above(c("", "Manual scoring" = 3, "Scheduled scoring" = 7), align = "l") %>%
   column_spec(1, width = "14em") %>%
   column_spec(2, width = "3em") %>%
   column_spec(3, width = "3em") %>%
